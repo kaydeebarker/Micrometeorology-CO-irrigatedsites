@@ -1,0 +1,105 @@
+---
+title: "Micrometeorology Analysis in Colorado"
+author: "Kaydee S. Barker"
+date: '2022-04-27'
+output: 
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+
+rm(list=ls()) #clear global environment/workspace
+
+library(rvest)
+library(tidyverse)
+library(lubridate)
+library(dplyr) #lots of functions
+library(tidyr)
+library(ggplot2) #all of the graphs
+library(zoo) #interpolate data
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r, warning=FALSE}
+
+COweather <- read_csv("COstations_weather.csv")
+
+COdata <- COweather %>%
+  mutate(Date = mdy(Date)) %>%
+  mutate_at(vars(Date), funs(year, month)) %>%
+  mutate(DOY = format(Date, "%j")) %>%
+  filter(DOY >= 131 & DOY <= 284) %>% #filter to May 10 - Oct 10 
+  mutate(Avg_T = na.approx(Avg_T), Max_T = na.approx(Max_T), Min_T = na.approx(Min_T), 
+         RH_max = na.approx(RH_max), RH_min = na.approx(RH_min), Precip = na.approx(Precip), 
+         Srad = na.approx(Srad), Rso = na.approx(Rso), ASCE_ETr = na.approx(ASCE_ETr),
+         ASCE_ETo = na.approx(ASCE_ETo), ASCE_hr_ET = na.approx(ASCE_hr_ET),
+         PK_ET = na.approx(PK_ET)) #interpolate missing values via linear interpolation (na.spline = polynomial)
+
+
+#write.csv(COdata, "~/Dropbox/Kaydee's docs/Code/Micrometeorology-CO-irrigatedsites/COdata.csv", row.names=FALSE)
+
+#Individual sites datasets
+
+#Greeley
+Gly <- COdata %>% 
+  filter(Station_ID == "gly04")
+
+#Rocky Ford
+RF <- COdata %>%
+  filter(Station_ID == "rfd01")
+
+#Rogers Mesa Research Station
+RM <- COdata %>%
+  filter(Station_ID != "gly04") %>%
+  filter(Station_ID != "rfd01") %>%
+  filter(Station_ID != "ctr01")
+
+#Center
+Ctr <- COdata %>%
+  filter(Station_ID == "ctr01")
+
+```
+
+# Analysis
+
+## Temperatures
+### Average Growing Season Air Temperature Per Site
+```{r, warning=FALSE}
+
+
+
+
+```
+
+### Yearly Average Air Temperatures
+```{r, warning=FALSE}
+
+
+
+
+```
+
+## Precipitation
+### Average Growing Season Precipitation Per Site
+```{r, warning=FALSE}
+
+
+
+
+```
+
+### Yearly Average Precipitation
+```{r, warning=FALSE}
+
+
+
+
+```
+
+
