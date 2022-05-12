@@ -110,6 +110,11 @@ Ctr <- COdata2 %>%
 ### Average Growing Season Air Temperature Per Site
 ```{r, warning=FALSE}
 
+ggplot(COdata2, aes(x=Station, y=Avg_T, fill=Station)) + 
+  geom_bar(stat = "identity", width = 0.7, position = "dodge") +
+  xlab("Site") +  ylab("Average Temperature (C)") +
+  theme_few() + scale_color_manual(values=customPalette)
+
 ggplot(COdata, aes(x = DOY, y = Avg_T, color = Station)) +
   geom_point(shape=21, size=2) + geom_line() +
   theme_few() + theme(legend.position="right") +
@@ -129,12 +134,17 @@ ggplot(COdata_monthly, aes(x = month, y = Avg_T, color = Station)) +
 ### Growing Season Precipitation Per Site Per Year
 ```{r, warning=FALSE}
 
+ggplot(COdata2, aes(x=Station, y=Avg_T, fill=Station)) + 
+  geom_bar(stat = "identity", width = 0.7, position = "dodge") +
+  xlab("Site") +  ylab("Precipitation (mm)") +
+  theme_few() + scale_color_manual(values=customPalette)
+
 COdata %>%
   mutate_at(vars(month), funs(factor)) %>%
 ggplot(., aes(x=month, y=Precip, fill=Station)) + 
   geom_bar(stat = "identity", width = 0.7, position = "dodge") +
   scale_x_discrete(labels=c("5"="May", "6"="June", "7"="Jul.", "8"="Aug.", "9"="Sept.", "10"="Oct.")) +
-  xlab("Month") +  ylab("Precipitation in mm") +
+  xlab("Month") +  ylab("Precipitation (mm)") +
   theme_few() + scale_color_manual(values=customPalette)
 
 COdata %>%
@@ -144,6 +154,17 @@ ggplot(., aes(x=year, y=Precip, fill=Station)) +
   xlab("Year") +  ylab("Precipitation in mm") +
   theme_few() + scale_color_manual(values=customPalette)
 
+
+```
+
+## Wind
+### Growing Season Wind Run
+```{r, warning=FALSE}
+
+ggplot(COdata2, aes(x=Station, y=Wind, fill=Station)) + 
+  geom_bar(stat = "identity", width = 0.7, position = "dodge") +
+  xlab("Site") +  ylab("Wind (km)") +
+  theme_few() + scale_color_manual(values=customPalette)
 
 ```
 
@@ -157,12 +178,12 @@ ggplot(., aes(x=year, y=Precip, fill=Station)) +
 #	CC = NA, ed = NA, Tdew = NA, RH = ((RH_max + RH_min)/2), P = NA, P0 = NA,
 #	z = Elev_m, crop='short', na.rm = FALSE))
 
-ggplot(COdata2, aes(x=Station, y=ETc, fill=Station)) + 
+ggplot(COdata2, aes(x=Station, y=ETr, fill=Station)) + 
   geom_bar(stat = "identity", width = 0.7, position = "dodge") +
   xlab("Site") +  ylab("Evapotranspiration (mm/day)") +
   theme_few() + scale_color_manual(values=customPalette)
 
-ggplot(COdata2, aes(x=year, y=ETc, fill=Station)) + 
+ggplot(COdata2, aes(x=year, y=ETr, fill=Station)) + 
   geom_bar(stat = "identity", width = 0.7, position = "dodge") +
   xlab("Year") +  ylab("Evapotranspiration (mm/day)") +
   theme_few() + scale_color_manual(values=customPalette)
@@ -222,7 +243,34 @@ ggplot(yearly, aes(x=Station, y=IRRADJ, fill=Station)) +
 
 ```
 
+# Climate Change Simulation
+
 ```{r}
+
+# Data with simulated +2 degrees C
+COdata_cc <- read_csv("COdata_cc.csv") %>%
+  mutate_at(vars(ETr, ETo, Kc, ETc), as.numeric)
+
+COdata_yearly_cc <- COdata_cc %>% 
+  group_by(Station, year) %>%
+  summarise_at(vars(-Station_ID,-Lat, -Long, -Elev_ft, -Elev_m, -Date, -DOY), sum)
+
+#write.csv(COdata_yearly_cc, "~/Dropbox/Kaydee's docs/Code/Micrometeorology-CO-irrigatedsites/COdata_yearly_cc.csv", row.names=FALSE)
+
+yearly_cc <- read_csv("yearly_cc.csv")
+
+# ET
+ggplot(COdata_cc, aes(x=Station, y=ETr, fill=Station)) + 
+  geom_bar(stat = "identity", width = 0.7, position = "dodge") +
+  xlab("Site") +  ylab("Evapotranspiration (mm/day)") +
+  theme_few() + scale_color_manual(values=customPalette)
+
+# Irrigation
+ggplot(yearly_cc, aes(x=Station, y=IRRADJ, fill=Station)) + 
+  geom_bar(stat = "identity", width = 0.7, position = "dodge") +
+  xlab("Site") +  ylab("Adjusted Irrigation Requirement (mm)") +
+  theme_few() + scale_color_manual(values=customPalette)
+
 
 ```
 
